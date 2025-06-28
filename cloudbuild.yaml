@@ -6,9 +6,9 @@ substitutions:
   _REGION: 'europe-west1'
   _PROJECT_ID: 'medical-systems-project-devl'
   _REPO_NAME: 'medical-systems-project-devl-repo'
-  _SERVICE_NAME: 'logistics_order_service_service'
+  _SERVICE_NAME: 'logistics-order-service-service'
   _DOCKERFILE_PATH: 'Dockerfile'
-  _IMAGE_NAME: 'logistics_order_service-image'
+  _IMAGE_NAME: 'logistics-order-service-image'
 
 steps:
   - name: 'gcr.io/cloud-builders/docker'
