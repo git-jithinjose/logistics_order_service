@@ -1,5 +1,7 @@
 package com.logistics.order.adapter.inbound.web;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +31,8 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(OrderController.class);
 
 	private final PlaceOrderUseCase placeOrderUseCase;
 	private final ApproveOrderUseCase approveOrderUseCase;
@@ -49,6 +53,7 @@ public class OrderController {
 
 	@PostMapping
 	public ResponseEntity<ApiResponseWrapper<OrderResponse>> placeOrder(@RequestBody @Valid PlaceOrderRequest request) {
+		LOG.info("Received request to place a new order");
 		PlaceOrderCommand command = commandMapper.map(request);
 		OrderResponseDto order = placeOrderUseCase.placeOrder(command);
 		return ResponseEntity.status(HttpStatus.OK)
@@ -56,17 +61,19 @@ public class OrderController {
 
 	}
 
-	@PutMapping("/{orderId}/approve")
-	public ResponseEntity<ApiResponseWrapper<OrderResponse>> approveOrder(@PathVariable String orderId) {
-		OrderResponseDto order = approveOrderUseCase.approveOrder(orderId);
+	@PutMapping("/{orderNumber}/approve")
+	public ResponseEntity<ApiResponseWrapper<OrderResponse>> approveOrder(@PathVariable String orderNumber) {
+		LOG.info("Received request to approve order : {}",orderNumber);
+		OrderResponseDto order = approveOrderUseCase.approveOrder(orderNumber);
 		return ResponseEntity.status(HttpStatus.OK)
 				.body(ApiResponseWrapper.success(OrderResponseMapper.toOrderResponse(order)));
 
 	}
 
-	@PutMapping("/{orderId}/cancel")
-	public ResponseEntity<ApiResponseWrapper<OrderResponse>> cancelOrder(@PathVariable String orderId) {
-		OrderResponseDto orderResponseDto = cancelOrderUseCase.cancelOrder(orderId);
+	@PutMapping("/{orderNumber}/cancel")
+	public ResponseEntity<ApiResponseWrapper<OrderResponse>> cancelOrder(@PathVariable String orderNumber) {
+		LOG.info("Received request to cancel order : {}" ,orderNumber);
+		OrderResponseDto orderResponseDto = cancelOrderUseCase.cancelOrder(orderNumber);
 		OrderResponse orderResponseToApi = OrderResponseMapper.toOrderResponse(orderResponseDto);
 		ApiResponseWrapper<OrderResponse> genericResponse = ApiResponseWrapper.success(orderResponseToApi);
 
@@ -76,6 +83,7 @@ public class OrderController {
 
 	@GetMapping
 	public ResponseEntity<ApiResponseWrapper<OrderResponse>> getOrder(@RequestParam("orderNumber") String orderNumber) {
+		LOG.info("Received request to get details of the order : {}",orderNumber);
 		OrderResponseDto orderResponseDto = queryOrderUseCase.getOrderStatus(orderNumber);
 		OrderResponse orderResponseToApi = OrderResponseMapper.toOrderResponse(orderResponseDto);
 		ApiResponseWrapper<OrderResponse> genericResponse = ApiResponseWrapper.success(orderResponseToApi);
