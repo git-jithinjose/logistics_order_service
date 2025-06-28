@@ -1,1 +1,51 @@
 
+options:
+  logging: CLOUD_LOGGING_ONLY
+substitutions:
+  _ENV: 'devl'
+  _REGION: 'europe-west1'
+  _PROJECT_ID: 'medical-systems-project-devl'
+  _REPO_NAME: 'medical-systems-project-devl-repo'
+  _SERVICE_NAME: 'logistics_order_service_service'
+  _DOCKERFILE_PATH: 'Dockerfile'
+  _IMAGE_NAME: 'logistics_order_service-image'
+
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build Docker image'
+    args:
+      [
+        'build',
+        '-t',
+        '$_REGION-docker.pkg.dev/$_PROJECT_ID/$_REPO_NAME/$_IMAGE_NAME-$_ENV:$SHORT_SHA',
+        '-f',
+        '$_DOCKERFILE_PATH',
+        '.'
+      ]
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push Docker image'
+    args:
+      ['push', '$_REGION-docker.pkg.dev/$_PROJECT_ID/$_REPO_NAME/$_IMAGE_NAME-$_ENV:$SHORT_SHA']
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'Deploy to Cloud Run'
+    entrypoint: gcloud
+    args:
+      [
+        'run',
+        'deploy',
+        '$_SERVICE_NAME-$_ENV',
+        '--image',
+        '$_REGION-docker.pkg.dev/$_PROJECT_ID/$_REPO_NAME/$_IMAGE_NAME-$_ENV:$SHORT_SHA',
+        '--region',
+        '$_REGION',
+        '--platform',
+        'managed',
+        '--allow-unauthenticated',
+        '--set-env-vars',
+        'ENV=$_ENV'
+      ]
+
+images:
+  - '$_REGION-docker.pkg.dev/$_PROJECT_ID/$_REPO_NAME/$_IMAGE_NAME-$_ENV:$SHORT_SHA'
