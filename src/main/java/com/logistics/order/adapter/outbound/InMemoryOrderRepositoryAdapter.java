@@ -1,4 +1,4 @@
-package com.logistics.order.adapter.outbound.memory;
+package com.logistics.order.adapter.outbound;
 
 
 import java.util.Map;

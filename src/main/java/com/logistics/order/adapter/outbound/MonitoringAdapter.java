@@ -1,4 +1,4 @@
-package com.logistics.order.adapter.outbound.memory;
+package com.logistics.order.adapter.outbound;
 
 import org.springframework.stereotype.Component;
 
@@ -10,21 +10,30 @@ import io.micrometer.core.instrument.MeterRegistry;
 @Component
 public class MonitoringAdapter implements MonitoringPort {
 
+    private final Counter initiatedOrdersCounter;
     private final Counter approvedOrdersCounter;
     private final Counter cancelledOrdersCounter;
 
     public MonitoringAdapter(MeterRegistry registry) {
+        this.initiatedOrdersCounter = Counter.builder("orders.initiated").register(registry);
         this.approvedOrdersCounter = Counter.builder("orders.approved").register(registry);
         this.cancelledOrdersCounter = Counter.builder("orders.cancelled").register(registry);
     }
+    
 
     @Override
-    public void incrementApprovedOrders() {
-        approvedOrdersCounter.increment();
+    public void recordOrderInitiated() {
+    	initiatedOrdersCounter.increment();
     }
 
     @Override
-    public void incrementCancelledOrders() {
-        cancelledOrdersCounter.increment();
+    public void recordOrderApproved() {
+    	approvedOrdersCounter.increment();
+    }
+
+
+    @Override
+    public void recordOrderCancelled() {
+    	cancelledOrdersCounter.increment();
     }
 }

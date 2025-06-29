@@ -21,6 +21,7 @@ import com.logistics.order.application.port.outbound.MonitoringPort;
 import com.logistics.order.application.port.outbound.OrderCommandPort;
 import com.logistics.order.application.port.outbound.OrderReadPort;
 import com.logistics.order.application.port.outbound.dto.OutboundOrderCommand;
+import com.logistics.order.domain.exception.DomainException;
 import com.logistics.order.domain.model.Order;
 import com.logistics.order.domain.model.OrderItem;
 import com.logistics.order.domain.model.OrderNumber;
@@ -55,7 +56,7 @@ public class OrderService implements PlaceOrderUseCase, ApproveOrderUseCase, Can
 
 		OutboundOrderCommand savedOrder = orderWritePort
 				.persistOrder(OrderToOutboundOrderMapper.toOutboundOrderCommand(order));
-
+		monitoringPort.recordOrderInitiated();
 		return new OrderResponseDto(savedOrder.orderNumber().toString(), savedOrder.status());
 	}
 
@@ -74,13 +75,18 @@ public class OrderService implements PlaceOrderUseCase, ApproveOrderUseCase, Can
 			OutboundOrderCommand updatedOrder = orderWritePort
 					.persistOrder(OrderToOutboundOrderMapper.toOutboundOrderCommand(order));
 
-		    monitoringPort.incrementApprovedOrders();
+		    monitoringPort.recordOrderApproved();
 			return new OrderResponseDto(updatedOrder.orderNumber(), updatedOrder.status());
 
 		} catch (ApplicationException ex) {
 			LOG.warn("order : {} not found while calling loadOrder", orderNumber);
 			throw ex;
-		} catch (Exception ex) {
+		} catch(DomainException ex) {
+			LOG.warn("can't approve order : {} ,only pending orders can be approved", orderNumber);
+			throw new DomainException("Only pending orders can be approved.");
+		}
+		
+		catch (Exception ex) {
 			throw new UnexpectedOrderServiceException(
 					String.format("Unexpected errors while approving the order %s: %s", orderNumber, ex.getMessage()),
 					ex);
@@ -99,7 +105,7 @@ public class OrderService implements PlaceOrderUseCase, ApproveOrderUseCase, Can
 
 		OutboundOrderCommand updatedOrder = orderWritePort
 				.persistOrder(OrderToOutboundOrderMapper.toOutboundOrderCommand(order));
-		 monitoringPort.incrementCancelledOrders();
+		 monitoringPort.recordOrderCancelled();
 		return new OrderResponseDto(updatedOrder.orderNumber(), updatedOrder.status());
 
 	}
