@@ -17,6 +17,7 @@ import com.logistics.order.application.port.inbound.PlaceOrderUseCase;
 import com.logistics.order.application.port.inbound.QueryOrderUseCase;
 import com.logistics.order.application.port.inbound.dto.OrderResponseDto;
 import com.logistics.order.application.port.inbound.dto.PlaceOrderCommand;
+import com.logistics.order.application.port.outbound.MonitoringPort;
 import com.logistics.order.application.port.outbound.OrderCommandPort;
 import com.logistics.order.application.port.outbound.OrderReadPort;
 import com.logistics.order.application.port.outbound.dto.OutboundOrderCommand;
@@ -32,10 +33,12 @@ public class OrderService implements PlaceOrderUseCase, ApproveOrderUseCase, Can
 
 	private final OrderCommandPort orderWritePort;
 	private final OrderReadPort orderReadPort;
+    private final MonitoringPort monitoringPort;
 
-	public OrderService(OrderCommandPort orderWritePort, OrderReadPort orderReadPort) {
+	public OrderService(OrderCommandPort orderWritePort, OrderReadPort orderReadPort,MonitoringPort monitoringPort) {
 		this.orderWritePort = orderWritePort;
 		this.orderReadPort = orderReadPort;
+		this.monitoringPort = monitoringPort;
 	}
 
 	@Override
@@ -71,6 +74,7 @@ public class OrderService implements PlaceOrderUseCase, ApproveOrderUseCase, Can
 			OutboundOrderCommand updatedOrder = orderWritePort
 					.persistOrder(OrderToOutboundOrderMapper.toOutboundOrderCommand(order));
 
+		    monitoringPort.incrementApprovedOrders();
 			return new OrderResponseDto(updatedOrder.orderNumber(), updatedOrder.status());
 
 		} catch (ApplicationException ex) {
@@ -95,7 +99,7 @@ public class OrderService implements PlaceOrderUseCase, ApproveOrderUseCase, Can
 
 		OutboundOrderCommand updatedOrder = orderWritePort
 				.persistOrder(OrderToOutboundOrderMapper.toOutboundOrderCommand(order));
-
+		 monitoringPort.incrementCancelledOrders();
 		return new OrderResponseDto(updatedOrder.orderNumber(), updatedOrder.status());
 
 	}
