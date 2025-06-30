@@ -63,7 +63,7 @@ public class OrderController {
 
 	@PutMapping("/{orderNumber}/approve")
 	public ResponseEntity<ApiResponseWrapper<OrderResponse>> approveOrder(@PathVariable String orderNumber) {
-		LOG.info("Received request to approve order : {}",orderNumber);
+		LOG.info("Received request to approve order");
 		OrderResponseDto order = approveOrderUseCase.approveOrder(orderNumber);
 		return ResponseEntity.status(HttpStatus.OK)
 				.body(ApiResponseWrapper.success(OrderResponseMapper.toOrderResponse(order)));
@@ -72,7 +72,7 @@ public class OrderController {
 
 	@PutMapping("/{orderNumber}/cancel")
 	public ResponseEntity<ApiResponseWrapper<OrderResponse>> cancelOrder(@PathVariable String orderNumber) {
-		LOG.info("Received request to cancel order : {}" ,orderNumber);
+		LOG.info("Received request to cancel order");
 		OrderResponseDto orderResponseDto = cancelOrderUseCase.cancelOrder(orderNumber);
 		OrderResponse orderResponseToApi = OrderResponseMapper.toOrderResponse(orderResponseDto);
 		ApiResponseWrapper<OrderResponse> genericResponse = ApiResponseWrapper.success(orderResponseToApi);
@@ -83,7 +83,7 @@ public class OrderController {
 
 	@GetMapping
 	public ResponseEntity<ApiResponseWrapper<OrderResponse>> getOrder(@RequestParam("orderNumber") String orderNumber) {
-		LOG.info("Received request to get details of the order : {}",orderNumber);
+		LOG.info("Received request to get details of the order");
 		OrderResponseDto orderResponseDto = queryOrderUseCase.getOrderStatus(orderNumber);
 		OrderResponse orderResponseToApi = OrderResponseMapper.toOrderResponse(orderResponseDto);
 		ApiResponseWrapper<OrderResponse> genericResponse = ApiResponseWrapper.success(orderResponseToApi);
