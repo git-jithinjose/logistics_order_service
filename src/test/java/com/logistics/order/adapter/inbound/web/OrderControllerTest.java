@@ -103,14 +103,14 @@ class OrderControllerTest {
     @Test
     @DisplayName("approve order should return success, the status in the response body should be 'APPROVED'")
     void approveOrder() throws Exception {
-        String orderId = "ORD123";
+        String orderNumber = "ORD123";
         OrderResponseDto responseDto = new OrderResponseDto(
             "ORD123", 
             "APPROVED");
         
-        when(approveOrderUseCase.approveOrder(orderId)).thenReturn(responseDto);
+        when(approveOrderUseCase.approveOrder(orderNumber)).thenReturn(responseDto);
 
-        mockMvc.perform(put("/api/orders/{orderId}/approve", orderId)
+        mockMvc.perform(put("/api/orders/{orderNumber}/approve", orderNumber)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
@@ -122,12 +122,12 @@ class OrderControllerTest {
     @DisplayName("approve order should return failure response with an error message "
     		+ "'Only pending orders can be approved.' when trying to approve already approved order")
     void approveOrder_Failure() throws Exception {
-        String orderId = "ORD123";
+        String orderNumber = "ORD123";
         
-        when(approveOrderUseCase.approveOrder(orderId))
+        when(approveOrderUseCase.approveOrder(orderNumber))
         .thenThrow(new DomainException("Only pending orders can be approved."));
 
-        mockMvc.perform(put("/api/orders/{orderId}/approve", orderId)
+        mockMvc.perform(put("/api/orders/{orderNumber}/approve", orderNumber)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.success").value(false))
@@ -138,14 +138,14 @@ class OrderControllerTest {
     
     @Test
     void testCancelOrder() throws Exception {
-        String orderId = "ORD124";
+        String orderNumber = "ORD124";
         OrderResponseDto responseDto = new OrderResponseDto(
             "ORD124", 
             "CANCELLED");
         
-        when(cancelOrderUseCase.cancelOrder(orderId)).thenReturn(responseDto);
+        when(cancelOrderUseCase.cancelOrder(orderNumber)).thenReturn(responseDto);
 
-        mockMvc.perform(put("/api/orders/{orderId}/cancel", orderId)
+        mockMvc.perform(put("/api/orders/{orderNumber}/cancel", orderNumber)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))

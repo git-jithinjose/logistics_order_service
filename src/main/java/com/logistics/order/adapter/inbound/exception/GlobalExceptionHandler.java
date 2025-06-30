@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.logistics.order.adapter.inbound.exception.dto.ApiError;
 import com.logistics.order.adapter.inbound.exception.dto.ApiResponseWrapper;
 import com.logistics.order.application.exception.ApplicationException;
+import com.logistics.order.application.exception.UnexpectedOrderServiceException;
 import com.logistics.order.domain.exception.DomainException;
 
 @RestControllerAdvice
@@ -47,5 +48,13 @@ public class GlobalExceptionHandler {
 				.forEach(error -> errors.add(new ApiError(error.getField(), error.getDefaultMessage())));
 		return ResponseEntity.badRequest().body(ApiResponseWrapper.failure(errors));
 	}
+	
+	@ExceptionHandler(UnexpectedOrderServiceException.class)
+	public ResponseEntity<ApiResponseWrapper<Void>> handleValidationExceptions(UnexpectedOrderServiceException ex) {
+		List<ApiError> errors = List.of(new ApiError(null, ex.getMessage()));
+		return ResponseEntity.badRequest().body(ApiResponseWrapper.failure(errors));
+	}
+	
+	
 
 }

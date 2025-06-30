@@ -1,0 +1,156 @@
+openapi: 3.0.3
+info:
+  title: Logistics Order API
+  description: API for managing orders in Logistics system
+  version: 1.0.0
+paths:
+  /api/orders:
+    post:
+      summary: Place a new order
+      operationId: placeOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaceOrderRequest'
+      responses:
+        '200':
+          description: Order placed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseWrapperOrderResponse'
+
+    get:
+      summary: Get order details by order number
+      operationId: getOrder
+      parameters:
+        - name: orderNumber
+          in: query
+          description: Order number to query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order details fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseWrapperOrderResponse'
+
+  /api/orders/{orderNumber}/approve:
+    put:
+      summary: Approve an order
+      operationId: approveOrder
+      parameters:
+        - name: orderNumber
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order approved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseWrapperOrderResponse'
+
+  /api/orders/{orderNumber}/cancel:
+    put:
+      summary: Cancel an order
+      operationId: cancelOrder
+      parameters:
+        - name: orderNumber
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order cancelled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponseWrapperOrderResponse'
+
+components:
+  schemas:
+    ApiResponseWrapperOrderResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/OrderResponse'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiError'
+          example: []
+      required:
+        - success
+        - data
+        - errors
+
+    OrderResponse:
+      type: object
+      properties:
+        orderNumber:
+          type: string
+          example: "ORD123456"
+        status:
+          type: string
+          example: "APPROVED"
+      required:
+        - orderNumber
+        - status
+
+    PlaceOrderRequest:
+      type: object
+      properties:
+        customerId:
+          type: integer
+          format: int64
+          example: 12345
+        items:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/OrderItemRequest'
+        shippingAddressId:
+          type: string
+          example: "ADDR6789"
+      required:
+        - customerId
+        - items
+        - shippingAddressId
+
+    OrderItemRequest:
+      type: object
+      properties:
+        productId:
+          type: string
+          example: "PROD001"
+        quantity:
+          type: integer
+          example: 2
+      required:
+        - productId
+        - quantity
+
+    ApiError:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "ERR001"
+        message:
+          type: string
+          example: "Invalid order number"
+      required:
+        - code
+        - message
