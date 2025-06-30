@@ -63,7 +63,7 @@ public class OrderService implements PlaceOrderUseCase, ApproveOrderUseCase, Can
 	@Override
 	public OrderResponseDto approveOrder(String orderNumber) {
 		try {
-			LOG.info("Received approveOrder request");
+			LOG.info("Received approveOrder request, orderNumber : {}",orderNumber);
 			Order order = OrderToOutboundOrderMapper
 					.toDomainOrder(orderReadPort.loadOrder(orderNumber).orElseThrow(() -> {
 						return new ApplicationException(
@@ -95,7 +95,7 @@ public class OrderService implements PlaceOrderUseCase, ApproveOrderUseCase, Can
 
 	@Override
 	public OrderResponseDto cancelOrder(String orderNumber) {
-		LOG.info("Received cancelOrder request");
+		LOG.info("Received cancelOrder request, orderNumber : {}",orderNumber);
 		Order order = OrderToOutboundOrderMapper.toDomainOrder(orderReadPort.loadOrder(orderNumber).orElseThrow(() -> {
 			LOG.warn("order : {} not found while calling loadOrder", orderNumber);
 			return new ApplicationException("Order not found");
@@ -112,7 +112,7 @@ public class OrderService implements PlaceOrderUseCase, ApproveOrderUseCase, Can
 
 	@Override
 	public OrderResponseDto getOrderStatus(String orderNumber) {
-		LOG.info("Received getOrderStatus request");
+		LOG.info("Received getOrderStatus request , orderNumber : {}",orderNumber);
 		OutboundOrderCommand orderdetails = orderReadPort.loadOrder(orderNumber).orElseThrow(() -> {
 			LOG.warn("order : {} not found while calling loadOrder", orderNumber);
 			return new ApplicationException("Order not found");
